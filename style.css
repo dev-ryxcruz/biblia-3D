@@ -1,0 +1,177 @@
+/* Configuração geral da página */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    text-align: center;
+    /* Evita barras de rolagem desnecessárias */
+    overflow: hidden; 
+}
+
+h1 {
+    color: #333;
+}
+
+/* A "Cena" 3D */
+/* Define a perspectiva, como se fosse o "olho" do usuário */
+.cena-perspectiva {
+    width: 300px;
+    height: 400px;
+    perspective: 1000px; /* Quão "profunda" é a cena 3D */
+    margin: 30px;
+    
+    /* Para controle do z-index (ficar acima do overlay) */
+    position: relative;
+    z-index: 1; 
+    transition: z-index 0.1s;
+}
+
+/* O Container do Livro */
+.livro {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /* Isso garante que os filhos (capa, página) mantenham suas posições 3D */
+    transform-style: preserve-3d;
+    transition: transform 1s; /* Animação suave */
+}
+
+/* Estilos da Página e da Capa (elementos filhos do livro) */
+.capa, .pagina {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    /* Adicionamos transição para o efeito de luz (box-shadow) */
+    transition: box-shadow 1s ease;
+}
+
+/* A Página Interna */
+.pagina {
+    background-color: #fff;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box; /* Garante que o padding não quebre o layout */
+    /* Colocamos a página um pouco para trás no eixo Z (profundidade) */
+    transform: translateZ(-10px);
+}
+
+#versiculo-texto {
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+/* A Capa (que vai girar) */
+.capa {
+    /* A capa também precisa preservar o 3D para ter frente e costas */
+    transform-style: preserve-3d;
+    /* Define o eixo da rotação (como a lombada de um livro) */
+    transform-origin: left center;
+    transition: transform 1s ease-in-out;
+    /* Garante que a capa fique ligeiramente à frente da página */
+    transform: translateZ(2px); 
+}
+
+/* A Frente e as Costas da Capa */
+.frente-capa, .costas-capa {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* Esconde o lado "de trás" do elemento quando ele gira */
+    backface-visibility: hidden; 
+    border-radius: 5px;
+}
+
+.frente-capa {
+    background-color: #5d4037; /* Cor de couro marrom */
+    color: #ffd700; /* Cor de ouro */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.costas-capa {
+    background-color: #795548; /* Um pouco mais claro para o interior */
+    /* Gira 180 graus para ser o "interior" da capa */
+    transform: rotateY(180deg);
+}
+
+
+/* ----- A MÁGICA DA ANIMAÇÃO E EFEITOS ----- */
+
+/* Quando o livro tiver a classe "aberto" (que o JS vai adicionar)... */
+.livro.aberto .capa {
+    /* ...gire a capa 170 graus no eixo Y (vertical) */
+    transform: rotateY(-170deg) translateZ(2px);
+}
+
+/* Efeito de Luz na Página */
+/* Quando o livro estiver aberto, a página recebe esta "sombra de luz" */
+.livro.aberto .pagina {
+    /* box-shadow: [horizontal] [vertical] [blur] [spread] [cor] */
+    box-shadow: 0 0 30px 15px rgba(255, 255, 220, 0.7); /* Uma luz amarela/branca suave */
+}
+
+/* Estilos do Fundo Escuro (Overlay) */
+.overlay {
+    position: fixed; /* Cobre a tela inteira */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* Preto semitransparente */
+    
+    /* Começa invisível e sem poder ser clicado */
+    opacity: 0;
+    pointer-events: none; 
+    
+    /* z-index: 10; garante que fique acima do body, mas abaixo do livro */
+    z-index: 10; 
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Classe que o JS vai adicionar ao overlay */
+.overlay.ativo {
+    opacity: 1;
+    pointer-events: auto; /* Agora pode ser clicado (para fechar) */
+}
+
+/* Classe para trazer a cena 3D para frente */
+/* Precisamos garantir que o livro fique ACIMA do overlay escuro */
+.cena-perspectiva.foco {
+    z-index: 11; /* Acima do overlay (que é z-index 10) */
+}
+
+
+/* O Botão */
+button {
+    padding: 15px 30px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #5d4037;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    
+    /* Garante que o botão fique acima do overlay, mas abaixo do livro aberto */
+    position: relative;
+    z-index: 5;
+}
+
+button:hover {
+    background-color: #795548;
+}
